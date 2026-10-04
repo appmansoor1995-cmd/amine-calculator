@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d7a63">
+<meta name="background-color" content="#f3f5f4">
+<meta name="description" content="Amine and Water Content Calculator for laboratory analysis">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Amine Calculator">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Amine & Water Content Calculator</title>
+<style>
+:root{--bg:#f3f5f4;--card:#fff;--ink:#14201c;--mute:#5d6b66;--line:#d5ddd9;--acc:#0d7a63;--ok:#0d7a63;--bad:#b3261e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0f0e;--card:#151b19;--ink:#eef3f1;--mute:#93a39d;--line:#27312e;--acc:#3ecfa9;--ok:#3ecfa9;--bad:#ff8a80}}
+:root[data-theme="dark"]{--bg:#0b0f0e;--card:#151b19;--ink:#eef3f1;--mute:#93a39d;--line:#27312e;--acc:#3ecfa9;--ok:#3ecfa9;--bad:#ff8a80}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 "IBM Plex Sans",system-ui,sans-serif;padding:16px;max-width:560px;margin-inline:auto}
+h1{font-size:22px;margin:4px 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.f{font-family:Georgia,serif;font-style:italic;font-size:15px;color:var(--mute)}
+.res{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.res b{display:block;font-size:24px;color:var(--ink)}
+.res span{font-size:13px;color:var(--mute)}
+.row{display:grid;grid-template-columns:42% 1fr;gap:10px;align-items:center;margin-bottom:10px}
+label{color:var(--ink)}
+input,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--acc)}
+button{font:inherit;border:0;border-radius:24px;padding:13px;background:var(--acc);color:var(--bg);width:100%;font-weight:600;cursor:pointer}
+button.s{background:transparent;color:var(--mute);border:1px solid var(--line);width:auto;padding:8px 14px;font-weight:400}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;white-space:nowrap}
+th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+.bar{display:flex;gap:8px;margin-top:10px}
+small{color:var(--mute)}
+.err{border:2px solid var(--bad)!important;background:rgba(220,40,30,.14)!important}
+#msg.e{display:block;color:var(--bad);font-weight:700;font-size:15px;margin-top:6px;padding:8px 10px;border-inline-start:4px solid var(--bad);background:rgba(220,40,30,.1);border-radius:6px}
+</style>
+</head>
+<body>
+<h1>Amine &amp; Water Content Calculator</h1>
+
+<div class="card">
+<div class="f">Amine % = (V<sub>HCl</sub> × N<sub>HCl</sub> × MW<sub>Amine</sub>) / (W<sub>sample</sub> × 10)</div>
+<div class="f" style="margin-top:8px">Water % = 100 − Amine %</div>
+</div>
+
+<div class="card res">
+<div><span>Amine</span><b id="ra">0.00%</b></div>
+<div><span>Water</span><b id="rw">0.00%</b></div>
+<div><span>Status</span><b id="rs">N/A</b></div>
+</div>
+
+<div class="card">
+<div class="row"><label for="am">Amine Type</label>
+<select id="am"><option>MDEA</option><option>MEA</option><option>DEA</option><option>DIPA</option></select></div>
+<div class="row"><label for="st">Sample Type</label>
+<select id="st"><option>Lean Amine</option><option>Rich Amine</option><option>MDEA in Lean Glycol</option><option>MDEA in Rich Glycol</option></select></div>
+<div class="row"><label for="sid">Sample ID</label><input id="sid" placeholder="optional"></div>
+<div class="row"><label for="v">HCl Volume (mL)</label><input id="v" type="number" inputmode="decimal" step="any"></div>
+<div class="row"><label for="w">Sample Weight (g)</label><input id="w" type="number" inputmode="decimal" step="any"></div>
+<div class="row"><label for="n">HCl Normality (N)</label><input id="n" type="number" inputmode="decimal" step="any" value="1"></div>
+<div class="row"><label for="ph">pH</label><input id="ph" type="number" inputmode="decimal" step="0.01" min="0" max="14" placeholder="enter manually"></div>
+<div class="row"><label>Spec Amine % (min / max)</label>
+<div style="display:flex;gap:6px"><input id="smin" type="number" inputmode="decimal" step="any" placeholder="min"><input id="smax" type="number" inputmode="decimal" step="any" placeholder="max"></div></div>
+<small id="msg"></small>
+<div style="margin-top:10px;display:grid;gap:8px"><button id="reg" class="s" style="width:100%">Register sample (Sample ID + pH only)</button><button id="save">Save to Log</button></div>
+</div>
+
+<div class="card">
+<div class="tw"><table>
+<thead><tr><th>Sample</th><th>Amine Type</th><th>Sample Type</th><th>Amine %</th><th>Water %</th><th>pH</th><th>Status</th><th></th></tr></thead>
+<tbody id="log"></tbody></table></div>
+<div class="bar"><button class="s" id="copy">Copy report</button><button class="s" id="clear">Clear log</button></div>
+</div>
+
+<script>
+var MW={MDEA:119.16,MEA:61.08,DEA:105.14,DIPA:133.19};
+var $=function(i){return document.getElementById(i)};
+var cur=null,log=[],editIdx=null;
+try{log=JSON.parse(localStorage.getItem("amlog")||"[]")}catch(e){log=[]}
+function persist(){try{localStorage.setItem("amlog",JSON.stringify(log))}catch(e){}}
+function num(i){var x=parseFloat($(i).value);return isNaN(x)?null:x}
+function calc(){
+  var v=num("v"),w=num("w"),n=num("n"),mn=num("smin"),mx=num("smax");
+  cur=null;
+  if(v!==null&&w&&n!==null){
+    var a=v*n*MW[$("am").value]/(w*10),wt=100-a,s="N/A";
+    if(mn!==null||mx!==null){s=((mn===null||a>=mn)&&(mx===null||a<=mx))?"In spec":"Out of spec"}
+    cur={a:a,w:/Glycol/.test($("st").value)?null:wt,s:s};
+  }
+  $("ra").textContent=cur?cur.a.toFixed(2)+"%":"0.00%";
+  $("rw").textContent=cur?(cur.w===null?"—":cur.w.toFixed(2)+"%"):"0.00%";
+  var el=$("rs");el.textContent=cur?cur.s:"N/A";
+  el.className=cur&&cur.s==="In spec"?"ok":cur&&cur.s==="Out of spec"?"bad":"";
+  el.style.fontSize="18px";
+}
+function render(){
+  var h="";
+  log.forEach(function(r,i){
+    h+="<tr><td>"+esc(r.id||"-")+"</td><td>"+r.am+"</td><td>"+r.st+"</td><td>"+(r.a||"—")+"</td><td>"+(r.w||"—")+"</td><td><input type='number' inputmode='decimal' step='0.01' min='0' max='14' data-p='"+i+"' value='"+r.ph+"' placeholder='-' style='width:76px;padding:6px'></td><td class='"+(r.s==="In spec"?"ok":r.s==="Out of spec"?"bad":"")+"'>"+r.s+"</td><td>"+(r.s==="Pending"?"<a href='#' data-c='"+i+"' style='color:var(--acc);margin-right:24px;padding:6px 4px;display:inline-block'>Calc</a>":"")+"<a href='#' data-i='"+i+"' style='color:var(--mute);padding:6px 6px;display:inline-block'>✕</a></td></tr>";
+  });
+  $("log").innerHTML=h||"<tr><td colspan='8'><small>No saved samples yet.</small></td></tr>";
+}
+function ok(t){var m=$("msg");m.className="";m.textContent=t}
+function bad(t,ids){var m=$("msg");m.textContent=t;m.className="e";ids.forEach(function(i){$(i).classList.add("err")})}
+function live(){
+  var m=$("msg");m.className="";m.textContent="";
+  document.querySelectorAll(".err").forEach(function(x){x.classList.remove("err")});
+  var ph=num("ph"),v=num("v"),w=num("w"),n=num("n");
+  if(ph!==null&&(ph<0||ph>14))bad("pH must be between 0 and 14.",["ph"]);
+  else if(v!==null&&v<0)bad("HCl volume cannot be negative.",["v"]);
+  else if(w!==null&&w<=0)bad("Sample weight must be greater than 0.",["w"]);
+  else if(n!==null&&n<=0)bad("HCl normality must be greater than 0.",["n"]);
+  else if(cur&&cur.a>100)bad("Amine % is above 100. Check volume, weight and normality.",["v","w","n"]);
+}
+document.addEventListener("input",live);
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+["am","st","v","w","n","smin","smax"].forEach(function(i){$(i).addEventListener("input",calc)});
+$("save").onclick=function(){
+  if(document.querySelector("#v.err,#w.err,#n.err,#ph.err"))return;
+  if(!cur){var ids=[];if(num("v")===null)ids.push("v");if(!num("w"))ids.push("w");if(num("n")===null)ids.push("n");bad("Enter HCl volume, sample weight and normality first.",ids);return}
+  var ph=$("ph").value.trim();
+  if(ph!==""&&(isNaN(+ph)||+ph<0||+ph>14)){bad("pH must be between 0 and 14.",["ph"]);return}
+  var ent={id:$("sid").value.trim(),am:$("am").value,st:$("st").value,a:cur.a.toFixed(2),w:cur.w===null?"-":cur.w.toFixed(2),ph:ph===""?"":(+ph).toFixed(2),s:cur.s};
+  if(editIdx!==null){log[editIdx]=ent;editIdx=null}else log.push(ent);
+  persist();render();ok("Saved.");
+  ["v","w","ph","sid"].forEach(function(i){$(i).value=""});calc();
+};
+$("log").addEventListener("click",function(e){var i=e.target.getAttribute("data-i");if(i!==null){e.preventDefault();log.splice(+i,1);editIdx=null;persist();render()}});
+$("log").addEventListener("change",function(e){
+  var p=e.target.getAttribute("data-p");if(p===null)return;
+  var t=e.target.value.trim();
+  if(t!==""&&(isNaN(+t)||+t<0||+t>14)){bad("pH must be between 0 and 14.",[]);e.target.classList.add("err");e.target.value=log[+p].ph;return}
+  log[+p].ph=t===""?"":(+t).toFixed(2);persist();render();ok("pH updated.");
+});
+$("log").addEventListener("click",function(e){
+  var c=e.target.getAttribute("data-c");if(c===null)return;e.preventDefault();
+  var r=log[+c];editIdx=+c;$("sid").value=r.id;$("am").value=r.am;$("st").value=r.st;$("ph").value=r.ph;
+  $("v").value="";$("w").value="";calc();
+  ok("Enter HCl volume and sample weight for "+(r.id||"sample")+", then Save to Log.");$("v").focus();
+});
+$("reg").onclick=function(){
+  var id=$("sid").value.trim(),ph=$("ph").value.trim();
+  if(!id){bad("Enter a Sample ID first.",["sid"]);return}
+  if(ph===""||isNaN(+ph)||+ph<0||+ph>14){bad("Enter a pH between 0 and 14.",["ph"]);return}
+  log.push({id:id,am:$("am").value,st:$("st").value,a:"",w:"",ph:(+ph).toFixed(2),s:"Pending"});editIdx=null;
+  persist();render();ok("Registered "+id+": pH saved, titration pending.");$("sid").value="";$("ph").value="";
+};
+$("clear").onclick=function(){if(log.length&&confirm("Delete all saved samples?")){log=[];persist();render()}};
+$("copy").onclick=function(){
+  var t=["Sample\tAmine Type\tSample Type\tAmine %\tWater %\tpH\tStatus"].concat(log.map(function(r){return [r.id||"-",r.am,r.st,r.a,r.w,r.ph||"-",r.s].join("\t")})).join("\n");
+  try{navigator.clipboard.writeText(t).then(function(){ok("Report copied.")},function(){bad("Copy blocked by the browser.",[])})}catch(e){$("msg").textContent="Copy blocked by the browser."}
+};
+calc();render();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./service-worker.js").catch(function (err) {
+      console.warn("Service Worker registration failed:", err);
+    });
+  });
+}
+</script>
+</body>
+</html>
